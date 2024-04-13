@@ -13,14 +13,14 @@ class Gui:
         master.geometry("500x300")
 
         #variables to be accessed by backend, to produce pdfs
-        self.file_name = "" #
+        self.file_name = ""
         self.field_names = []
         self.options = [ # replace with backend.field_list (backend will grab list of fields from csv's)
             "Time Slot",
             "Presenter",
             "Room"
         ]
-        self.fields_dict = {}
+        self.fields_dict = {} # holds combobox objects
 
         #FILE BROWSER
         self.label_file_explorer = Label(master,
@@ -42,7 +42,7 @@ class Gui:
                                        width = 8,
                                        textvariable = self.n,
                                        justify = "center")
-        self.num_fields["values"] = [0,1,2,3,4,5]
+        self.num_fields["values"] = [2,3,4,5]
         self.num_fields.bind("<<ComboboxSelected>>", self.createFields)
         self.num_fields.pack()
 
@@ -50,9 +50,13 @@ class Gui:
         # FIELD SELECTION DROPDOWNS
         self.field_select_label = Label(master, text="Field Selection:")
         self.field_select_label.pack()
-     
 
-    #command show to trigger createfields each time
+        # CREATE BADGES BUTTON
+        self.button_create = Button(master,
+                                    text = "Click Here to Create Badges",
+                                    command = self.createBadges)
+        self.button_create.pack()
+
     # FILE BROWSER
     def browseFiles(self):
         filename = filedialog.askopenfilename(initialdir = "/",
@@ -65,6 +69,8 @@ class Gui:
         self.file_name = filename
 
     def createFields(self, event):
+        for i in range(len(self.fields_dict)):
+            self.fields_dict[f"Field_box_{i + 1}"].pack_forget()
         self.fields_dict.clear()
         num_fields = int(self.num_fields.get())
         for i in range(num_fields):
@@ -74,9 +80,16 @@ class Gui:
                                textvariable = self.field,
                                values = self.options)
             self.fields_dict[f"Field_box_{i + 1}"] = box
-        # for box in self.fields_dict.values:
-        #     box.pack()
+        for i in range(len(self.fields_dict)):
+            self.fields_dict[f"Field_box_{i + 1}"].pack()
 
+    def createBadges(self):
+        for i in range(len(self.fields_dict)):
+            self.field_names.append(self.fields_dict[f"Field_box_{i + 1}"].get())
+        print(self.field_names)
+        print(self.file_name)
+        
+        
 
 def main():
     root = Tk()
