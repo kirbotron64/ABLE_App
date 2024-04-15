@@ -1,25 +1,20 @@
-#gui for badge creation using tkinter
-#
-#
 from tkinter import *
 from tkinter import filedialog
 from tkinter import ttk
-# from backend import *
+import tkinter.messagebox
+from backend import BackEnd
 
 class Gui:
     def __init__(self, master):
         self.master = master
         master.title("ABLE Badge Creator")
         master.geometry("")
+        self.backend = BackEnd(self)
 
         #variables to be accessed by backend, to produce pdfs
         self.file_name = ""
         self.field_names = []
-        self.options = [ # replace with backend.field_list (backend will grab list of fields from csv's)
-            "Time Slot",
-            "Presenter",
-            "Room"
-        ]
+        self.options = self.backend.options
         self.fields_dict = {} # holds combobox objects
 
 
@@ -90,7 +85,8 @@ class Gui:
             self.field_names.append(self.fields_dict[f"Field_box_{i + 1}"].get())
         print(self.field_names)
         print(self.file_name)
-    # return completed pop up message when backend completes badge creation
+        if self.backend.buildBadges() == True:
+            tkinter.messagebox.showinfo("Badge Creation Status","Badge creation completed!")
         
         
 def main():
