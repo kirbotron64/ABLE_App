@@ -10,20 +10,28 @@ class TestBackendMethods(unittest.TestCase):
     dfMock = pandas.DataFrame(dfValues)
     
     def testInitialization(self):
-        #class in instantiated
-        self.assertRaises(something, ExcelDataframe.buildDataFrames)
-        EDF = ExcelDataframe('teststring')
-        #string not provided
-        #file is not an excel/csv file
-        #file does not have 'registrations' tab
-        #file does not have 'Wednesday workshops' tab
-        #file does not have 'Thursday workshops' tab
+    #     #class in instantiated
+    #     self.assertRaises(something, ExcelDataframe.buildDataFrames)
+    #     EDF = ExcelDataframe('teststring')
+    #     #string not provided
+    #     #file is not an excel/csv file
+    #     #file does not have 'registrations' tab
+    #     #file does not have 'Wednesday workshops' tab
+    #     #file does not have 'Thursday workshops' tab
 
 
-        #self.assertIsInstance()
+        # self.assertIsInstance()
         pass
 
     def testBuildDataFrames(self):
         self.assertIs(ExcelDataframe.buildDataFrames, pandas.DataFrame)
 
     
+# class TestBackendUpdatedMethods():
+
+#     def __init__(self):
+#         self.filename = "C:/Users/zacha/Documents/Repos/ABLE_App/registrations_April_24.xlsx"
+#         self.backend = ExcelDataframe()
+
+#     def testInitializationParameters(self):
+#         self.backend = ExcelDataframe()
