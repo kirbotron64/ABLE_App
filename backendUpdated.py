@@ -74,8 +74,7 @@ class ExcelDataframe():
         # Set initial variables for looping
         page = 0
         count_per_page = 4
-        #pdfFilled.append(pdfTemplate)
-        template_page = pdfTemplate.pages[0]
+        pdfFilled.append(pdfTemplate)
 
         #Loop through all items in dataframe
         for index, row in self.excelData.iterrows():
@@ -89,8 +88,9 @@ class ExcelDataframe():
             if pandas.isnull(row['thurs_afternoon']): row['thurs_afternoon'] = "WK0"
 
             # Set pdf fields to values from dataframe (references dict for workshop details)
-            template_page = pdfFilled.update_page_form_field_values(
-                template_page,
+            print(row['badge_name'])
+            pdfFilled.update_page_form_field_values(
+                pdfFilled.pages[page],
                 {f"name_{field_index}"      : row['badge_name'],
                  f"college_{field_index}"   : row['institution'],
                  f"c2r2_{field_index}"      : self.excelWorkshopDict[row['wed_morning']][2],
@@ -106,8 +106,10 @@ class ExcelDataframe():
             
             # if all four blocks on pdf filled out, reset field index and add new page
             if field_index >= 3:
+                self.pdf_suffix_fields(pdfFilled.pages[page], page)
+                pdfFilled.reset_translation(pdfTemplate)
                 page += 1
-                pdfFilled.add_page(updated_page)
+                pdfFilled.append(pdfTemplate)
 
         # Save complete pdf to folder with provided template
         save_path = os.path.dirname(self.pdfTemplatePath)
@@ -115,3 +117,16 @@ class ExcelDataframe():
         pdfFilled.write(output_stream)
 
         return True
+    
+    def pdf_suffix_fields(self, page, sfx):
+        fields = page.get('/Annots')
+        if fields:
+            for field_ref in fields:
+                field = field_ref.get_object()
+                field_name = field.get('/T') if '/T' in field else None
+                if field_name:
+                    # Append page number to field name
+                    new_field_name = f"{field_name}_Page{sfx}"
+                    field.update({
+                        PyPDF2.generic.NameObject("/T"): PyPDF2.generic.TextStringObject(new_field_name)
+                    })
