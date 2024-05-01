@@ -88,7 +88,6 @@ class ExcelDataframe():
             if pandas.isnull(row['thurs_afternoon']): row['thurs_afternoon'] = "WK0"
 
             # Set pdf fields to values from dataframe (references dict for workshop details)
-            print(row['badge_name'])
             pdfFilled.update_page_form_field_values(
                 pdfFilled.pages[page],
                 {f"name_{field_index}"      : row['badge_name'],
