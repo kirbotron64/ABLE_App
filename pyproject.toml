@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "able-app"
+version = "0.1.0"
+description = "Application for generating badges for the ABLE organization"
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pandas = "^2.2.2"
+openpyxl = "^3.1.2"
+pypdf2 = "^3.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+package-mode = false
