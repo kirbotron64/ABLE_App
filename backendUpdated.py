@@ -4,6 +4,9 @@ import os
 import PyPDF2
 
 
+class MultipleErrors(Exception):
+    def __init__(self, errors):
+        self.errors = errors
 
 
 class ExcelDataframe():
@@ -19,24 +22,26 @@ class ExcelDataframe():
         self.location_index = 0
 
 
-    def set_dataFilePath(self, path: str) -> None:
+    def set_dataFilePath(self, path: str):
         """sets file path field for data file"""
 
-        #add handling for none selected
-        if not (path.lower().endswith('xls1') or 
-                path.lower().endswith('xlsx1') or 
-                path.lower().endswith('xlsm1')):
-            raise ValueError("Incorrect file type provided")
+        if path == "":
+            return
+        if not (path.lower().endswith('xls') or 
+                path.lower().endswith('xlsx') or 
+                path.lower().endswith('xlsm')):
+            raise MultipleErrors([ValueError("Incorrect data file type provided")])
         else:
             self.dataFilePath = path
             self.buildDataStructures()
 
-    def set_pdfTemplatePath(self, path: str) -> None:
+    def set_pdfTemplatePath(self, path: str):
         """sets file path field for pdf template file"""
 
-        #add handling for none selected
+        if path == "":
+            return
         if not path.lower().endswith('pdf'):
-            raise ValueError("Incorrect file type provided")
+            raise ValueError("Incorrect pdf file type provided")
         else:
             self.pdfTemplatePath = path
 
@@ -44,67 +49,78 @@ class ExcelDataframe():
     def buildDataStructures(self) -> None:
         """Build dataframe members using excel file provided"""
 
-        errorPresent: bool = False
-
-        # Need to add error handling for a non excel file path
-        # Need to add error handling if sheet names are different or if sheets do not exist
-        # Need to verify that all columns are present or throw and error (Workshop ID, Room, & Presenter)
+        errors = []
 
         # Build dataframes from excel worksheets
         try:
-            self.excelData = pandas.read_excel(self.dataFilePath, "registrations")
+            self.excelData = pandas.read_excel(self.dataFilePath, "Registrations")
         except:
-            errorPresent = True
-            raise ValueError("\'registrations\' worksheet not found in data file")
+            try:
+                self.excelData = pandas.read_excel(self.dataFilePath, "registrations")
+            except ValueError as e:
+                errors.append(e)
         
         try:
-            excelWedData = pandas.read_excel(self.dataFilePath, "Wednesday workshops")
+            excelWedData = pandas.read_excel(self.dataFilePath, "Wednesday Workshops")
         except:
-            errorPresent = True
-            raise ValueError("\'Wednesday workshops\' worksheet not found in data file")
+            try:
+                excelWedData = pandas.read_excel(self.dataFilePath, "Wednesday workshops")
+            except:
+                try:
+                    excelWedData = pandas.read_excel(self.dataFilePath, "wednesday Workshops")
+                except:
+                    try:
+                        excelWedData = pandas.read_excel(self.dataFilePath, "wednesday workshops")
+                    except ValueError as e:
+                        errors.append(e)
         
         try:
-            excelThuData = pandas.read_excel(self.dataFilePath, "Thursday workshops")
+            excelThuData = pandas.read_excel(self.dataFilePath, "Thursday Workshops")
         except:
-            errorPresent = True
-            raise ValueError("\'Thursday workshops\' worksheet not found in data file")
+            try:
+                excelThuData = pandas.read_excel(self.dataFilePath, "Thursday workshops")
+            except:
+                try:
+                    excelThuData = pandas.read_excel(self.dataFilePath, "thursday Workshops")
+                except:
+                    try:
+                        excelThuData = pandas.read_excel(self.dataFilePath, "thursday workshops")
+                    except ValueError as e:
+                        errors.append(e)
 
-        if errorPresent:
-            return
+        if errors:
+            raise MultipleErrors(errors)
+        
 
+        # Preprocess column names to lowercase
+        self.excelData.columns = map(str.lower, self.excelData.columns)
+        excelWedData.columns = map(str.lower, excelWedData.columns)
+        excelThuData.columns = map(str.lower, excelThuData.columns)
 
         
         #Verify data existence in workshop dataframes
-        if not "workshopID" in excelWedData.columns:
-            errorPresent = True
-            raise Exception("Column \'workshopID\' not found in the \'Wednesday workshops\' worksheet")
-        if not "Presenter" in excelWedData.columns:
-            errorPresent = True
-            raise Exception("Column \'Presenter\' not found in the \'Wednesday workshops\' worksheet")
-        if not "Location" in excelWedData.columns:
-            errorPresent = True
-            raise Exception("Column \'Location\' not found in the \'Wednesday workshops\' worksheet")
-        if not "workshopID" in excelThuData.columns:
-            errorPresent = True
-            raise Exception("Column \'workshopID\' not found in the \'Thursday workshops\' worksheet")
-        if not "Presenter" in excelThuData.columns:
-            errorPresent = True
-            raise Exception("Column \'Presenter\' not found in the \'Thursday workshops\' worksheet")
-        if not "Location" in excelThuData.columns:
-            errorPresent = True
-            raise Exception("Column \'Location\' not found in the \'Thursday workshops\' worksheet")
+        if not "workshopid" in excelWedData.columns:
+            errors.append(ValueError("Column \'workshopID\' not found in the \'Wednesday workshops\' worksheet"))
+        if not "presenter" in excelWedData.columns:
+            errors.append(ValueError("Column \'presenter\' not found in the \'Wednesday workshops\' worksheet"))
+        if not "location" in excelWedData.columns:
+            errors.append(ValueError("Column \'location\' not found in the \'Wednesday workshops\' worksheet"))
+        if not "workshopid" in excelThuData.columns:
+            errors.append(ValueError("Column \'workshopID\' not found in the \'Thursday workshops\' worksheet"))
+        if not "presenter" in excelThuData.columns:
+            errors.append(ValueError("Column \'presenter\' not found in the \'Thursday workshops\' worksheet"))
+        if not "location" in excelThuData.columns:
+            errors.append(ValueError("Column \'location\' not found in the \'Thursday workshops\' worksheet"))
 
-        if errorPresent:
-            return
-
-        #if any above are true raise exit (use variable fed by the above?)
+        if errors:
+            raise MultipleErrors(errors)
 
 
         #Concat workshop dataframes, index columns, and create dictionary
         excelWorkshopData = pandas.concat([excelWedData, excelThuData])
-        self.presenter_index = excelWorkshopData.columns.get_loc("Presenter") - 1
-        self.location_index = excelWorkshopData.columns.get_loc("Location") - 1
-        self.excelWorkshopDict = excelWorkshopData.set_index('workshopID').T.to_dict('list')
+        self.presenter_index = excelWorkshopData.columns.get_loc("presenter") - 1
+        self.location_index = excelWorkshopData.columns.get_loc("location") - 1
+        self.excelWorkshopDict = excelWorkshopData.set_index('workshopid').T.to_dict('list')
 
 
 
@@ -115,10 +131,6 @@ class ExcelDataframe():
         has 4 values per badges per page and will be saved to the same location as the template
         document appended with '_Complete'."""
 
-
-        # # Feature add - userSelectedFields:list[str]
-        # # Create smaller DF with user selected columns
-        # self.userSelectedData = self.excelData(userSelectedFields)
 
         # Create pdf objects (template and new blank doc)
         pdfTemplate = PyPDF2.PdfReader(self.pdfTemplatePath)
@@ -165,8 +177,10 @@ class ExcelDataframe():
                 pdfFilled.append(pdfTemplate)
 
         # Save complete pdf to folder with provided template
-        save_path = os.path.dirname(self.pdfTemplatePath)
-        output_stream = open(save_path + "/_complete.pdf", "wb")
+        # save_path = os.path.dirname(self.pdfTemplatePath)
+        # output_stream = open(save_path + "/_complete.pdf", "wb")
+        save_path = self.pdfTemplatePath[:-4]
+        output_stream = open(save_path + "_complete.pdf", "wb")
         pdfFilled.write(output_stream)
 
         return True

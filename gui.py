@@ -39,6 +39,9 @@ class Gui:
         self.label_datafile.grid(column=2,row=1,columnspan=2)
         self.label_pdffile.grid(column=2,row=3,columnspan=2)
 
+        #Set button states
+        self.updateButtonStates()
+
 
 
     # FILE BROWSER
@@ -48,28 +51,20 @@ class Gui:
         try:
             match type:
                 case 'pdf':
-                    ###Talk to Josh about a better way to do this?
                     filename = self.fileBrowser([('PDF Files', '.pdf')])
-                    try:
-                        self.backend.set_pdfTemplatePath(filename)
-                    except:
-                        tkinter.messagebox.showinfo("Error!","Incorrect filetype chosen. Please try again.")
-                    else:
-                        self.pdf_file_name = filename
-                        self.label_pdffile.configure(text = "File Selected: " + filename)
+                    self.backend.set_pdfTemplatePath(filename)
+                    self.template_file_name = filename
+                    if filename != "" : self.label_pdffile.configure(text = "File Selected: " + filename)
                 case 'excel':
                     filename = self.fileBrowser([('Excel Files', '.xls*')])
-                    try:
-                        self.backend.set_dataFilePath(filename)
-                    except:
-                        tkinter.messagebox.showinfo("Error!","Incorrect filetype chosen. Please try again.")
-                    else:
-                        self.data_file_name = filename
-                        self.label_datafile.configure(text = "File Selected: " + filename)
+                    self.backend.set_dataFilePath(filename)
+                    self.data_file_name = filename
+                    if filename != "" : self.label_datafile.configure(text = "File Selected: " + filename)
                 case _:
                     pass
-        except (ValueError) as e:
-            tkinter.messagebox.showinfo(f"{e}")
+            self.updateButtonStates()
+        except Exception as e:
+            self.printErrors(e)
 
 
     def fileBrowser(self, type: tuple[str, str]) -> str:
@@ -77,12 +72,26 @@ class Gui:
                                               title = "Select a File",
                                               filetypes = type)
         return filename
+    
+    def updateButtonStates(self):
+        button = self.button_create
+        if self.template_file_name != "" and self.data_file_name != "":
+            button.config(state="normal")
+        else:
+            button.config(state="disabled")
             
 
     def createBadges(self):
         if self.backend.buildBadges() == True:
-            tkinter.messagebox.showinfo("Badge Creation Status","Badge creation completed!")
-            quit()
+            tkinter.messagebox.showinfo("Badges Created","Badge creation complete. File saved to folder with pdf template.")
+            self.button_create.config(text="Recreate Badges")
+
+
+    def printErrors(self, errors):
+        error_message = ""
+        for error in errors.errors:
+            error_message += f"{error}\n"
+        tkinter.messagebox.showerror("Error", f"Errors occurred. Please address the following before continuing:\n\n{error_message}")
 
         
         
