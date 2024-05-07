@@ -23,10 +23,10 @@ class ExcelDataframe():
         """sets file path field for data file"""
 
         #add handling for none selected
-        if not (path.lower().endswith('xls') or 
-                path.lower().endswith('xlsx') or 
-                path.lower().endswith('xlsm')):
-            raise Exception("Incorrect file type provided")
+        if not (path.lower().endswith('xls1') or 
+                path.lower().endswith('xlsx1') or 
+                path.lower().endswith('xlsm1')):
+            raise ValueError("Incorrect file type provided")
         else:
             self.dataFilePath = path
             self.buildDataStructures()
@@ -36,13 +36,15 @@ class ExcelDataframe():
 
         #add handling for none selected
         if not path.lower().endswith('pdf'):
-            raise Exception("Incorrect file type provided")
+            raise ValueError("Incorrect file type provided")
         else:
             self.pdfTemplatePath = path
 
     
     def buildDataStructures(self) -> None:
         """Build dataframe members using excel file provided"""
+
+        errorPresent: bool = False
 
         # Need to add error handling for a non excel file path
         # Need to add error handling if sheet names are different or if sheets do not exist
@@ -52,35 +54,49 @@ class ExcelDataframe():
         try:
             self.excelData = pandas.read_excel(self.dataFilePath, "registrations")
         except:
+            errorPresent = True
             raise ValueError("\'registrations\' worksheet not found in data file")
         
         try:
             excelWedData = pandas.read_excel(self.dataFilePath, "Wednesday workshops")
         except:
+            errorPresent = True
             raise ValueError("\'Wednesday workshops\' worksheet not found in data file")
         
         try:
             excelThuData = pandas.read_excel(self.dataFilePath, "Thursday workshops")
         except:
+            errorPresent = True
             raise ValueError("\'Thursday workshops\' worksheet not found in data file")
-        
-        #if any above are true then exit
+
+        if errorPresent:
+            return
+
 
         
         #Verify data existence in workshop dataframes
         if not "workshopID" in excelWedData.columns:
+            errorPresent = True
             raise Exception("Column \'workshopID\' not found in the \'Wednesday workshops\' worksheet")
         if not "Presenter" in excelWedData.columns:
+            errorPresent = True
             raise Exception("Column \'Presenter\' not found in the \'Wednesday workshops\' worksheet")
         if not "Location" in excelWedData.columns:
+            errorPresent = True
             raise Exception("Column \'Location\' not found in the \'Wednesday workshops\' worksheet")
         if not "workshopID" in excelThuData.columns:
+            errorPresent = True
             raise Exception("Column \'workshopID\' not found in the \'Thursday workshops\' worksheet")
         if not "Presenter" in excelThuData.columns:
+            errorPresent = True
             raise Exception("Column \'Presenter\' not found in the \'Thursday workshops\' worksheet")
         if not "Location" in excelThuData.columns:
+            errorPresent = True
             raise Exception("Column \'Location\' not found in the \'Thursday workshops\' worksheet")
-        
+
+        if errorPresent:
+            return
+
         #if any above are true raise exit (use variable fed by the above?)
 
 
