@@ -52,22 +52,22 @@ class ExcelDataframe():
         try:
             self.excelData = pandas.read_excel(self.dataFilePath, "registrations")
         except:
-            raise Exception("\'registrations\' worksheet not found in data file")
+            raise ValueError("\'registrations\' worksheet not found in data file")
         
         try:
             excelWedData = pandas.read_excel(self.dataFilePath, "Wednesday workshops")
         except:
-            raise Exception("\'Wednesday workshops\' worksheet not found in data file")
+            raise ValueError("\'Wednesday workshops\' worksheet not found in data file")
         
         try:
             excelThuData = pandas.read_excel(self.dataFilePath, "Thursday workshops")
         except:
-            raise Exception("\'Thursday workshops\' worksheet not found in data file")
+            raise ValueError("\'Thursday workshops\' worksheet not found in data file")
         
         #if any above are true then exit
 
         
-        #Verify data existence in workshop dataframes+
+        #Verify data existence in workshop dataframes
         if not "workshopID" in excelWedData.columns:
             raise Exception("Column \'workshopID\' not found in the \'Wednesday workshops\' worksheet")
         if not "Presenter" in excelWedData.columns:

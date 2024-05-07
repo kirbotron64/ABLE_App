@@ -45,28 +45,31 @@ class Gui:
     def setFilePath(self, type: Literal['pdf', 'excel']):
         """File browser for gui - requires parameter spicifying what file type should be searched for using the appropirate enum"""
 
-        match type:
-            case 'pdf':
-                ###Talk to Josh about a better way to do this?
-                filename = self.fileBrowser([('PDF Files', '.pdf')])
-                try:
-                    self.backend.set_pdfTemplatePath(filename)
-                except:
-                    tkinter.messagebox.showinfo("Error!","Incorrect filetype chosen. Please try again.")
-                else:
-                    self.pdf_file_name = filename
-                    self.label_pdffile.configure(text = "File Selected: " + filename)
-            case 'excel':
-                filename = self.fileBrowser([('Excel Files', '.xls*')])
-                try:
-                    self.backend.set_dataFilePath(filename)
-                except:
-                    tkinter.messagebox.showinfo("Error!","Incorrect filetype chosen. Please try again.")
-                else:
-                    self.data_file_name = filename
-                    self.label_datafile.configure(text = "File Selected: " + filename)
-            case _:
-                pass
+        try:
+            match type:
+                case 'pdf':
+                    ###Talk to Josh about a better way to do this?
+                    filename = self.fileBrowser([('PDF Files', '.pdf')])
+                    try:
+                        self.backend.set_pdfTemplatePath(filename)
+                    except:
+                        tkinter.messagebox.showinfo("Error!","Incorrect filetype chosen. Please try again.")
+                    else:
+                        self.pdf_file_name = filename
+                        self.label_pdffile.configure(text = "File Selected: " + filename)
+                case 'excel':
+                    filename = self.fileBrowser([('Excel Files', '.xls*')])
+                    try:
+                        self.backend.set_dataFilePath(filename)
+                    except:
+                        tkinter.messagebox.showinfo("Error!","Incorrect filetype chosen. Please try again.")
+                    else:
+                        self.data_file_name = filename
+                        self.label_datafile.configure(text = "File Selected: " + filename)
+                case _:
+                    pass
+        except (ValueError) as e:
+            tkinter.messagebox.showinfo(f"{e}")
 
 
     def fileBrowser(self, type: tuple[str, str]) -> str:
