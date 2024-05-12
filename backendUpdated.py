@@ -97,6 +97,8 @@ class ExcelDataframe():
         excelWedData.columns = map(str.lower, excelWedData.columns)
         excelThuData.columns = map(str.lower, excelThuData.columns)
 
+        print(self.excelData.columns)
+
         
         #Verify data existence in workshop dataframes
         if not "workshopid" in excelWedData.columns:
@@ -157,7 +159,7 @@ class ExcelDataframe():
             pdfFilled.update_page_form_field_values(
                 pdfFilled.pages[page],
                 {f"name_{field_index}"      : row['badge_name'],
-                 f"pronoun_{field_index}"   : row['pronoun'],
+                 f"pronoun_{field_index}"   : row['pronouns'],
                  f"college_{field_index}"   : row['institution'],
                  f"c2r2_{field_index}"      : self.excelWorkshopDict[row['wed_morning']][self.presenter_index],
                  f"c3r2_{field_index}"      : self.excelWorkshopDict[row['wed_morning']][self.location_index],
