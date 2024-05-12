@@ -174,7 +174,7 @@ class ExcelDataframe():
                 pdfFilled.pages[page],
                 {f"name_{field_index}"      : val_name,
                  f"pronoun_{field_index}"   : val_pronoun,
-                 f"college_{field_index}"   : val_institution,
+                 f"institution_{field_index}"   : val_institution,
                  f"W_AM_Pres_{field_index}"      : val_wedmornpres,
                  f"W_AM_Room_{field_index}"      : val_wedmornroom,
                  f"W_PM_Pres_{field_index}"      : val_wedaftrpres,
