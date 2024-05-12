@@ -1,6 +1,5 @@
 import pandas
 import openpyxl
-import os
 import PyPDF2
 
 
@@ -96,8 +95,7 @@ class ExcelDataframe():
         self.excelData.columns = map(str.lower, self.excelData.columns)
         excelWedData.columns = map(str.lower, excelWedData.columns)
         excelThuData.columns = map(str.lower, excelThuData.columns)
-
-        print(self.excelData.columns)
+        self.excelData['pronouns'] = self.excelData['pronouns'].fillna('')
 
         
         #Verify data existence in workshop dataframes
@@ -120,6 +118,8 @@ class ExcelDataframe():
 
         #Concat workshop dataframes, index columns, and create dictionary
         excelWorkshopData = pandas.concat([excelWedData, excelThuData])
+        excelWorkshopData['presenter'] = excelWorkshopData['presenter'].fillna('None')
+        excelWorkshopData['location'] = excelWorkshopData['location'].fillna('None')
         self.presenter_index = excelWorkshopData.columns.get_loc("presenter") - 1
         self.location_index = excelWorkshopData.columns.get_loc("location") - 1
         self.excelWorkshopDict = excelWorkshopData.set_index('workshopid').T.to_dict('list')
@@ -155,20 +155,34 @@ class ExcelDataframe():
             if pandas.isnull(row['thurs_morning']): row['thurs_morning'] = "WK0"
             if pandas.isnull(row['thurs_afternoon']): row['thurs_afternoon'] = "WK0"
 
+
+            val_name = row['badge_name']
+            val_pronoun = row['pronouns']
+            val_institution = row['institution']
+            val_wedmornpres = self.excelWorkshopDict[row['wed_morning']][self.presenter_index]
+            val_wedmornroom = self.excelWorkshopDict[row['wed_morning']][self.location_index]
+            val_wedaftrpres = self.excelWorkshopDict[row['wed_afternoon']][self.presenter_index]
+            val_wedaftrroom = self.excelWorkshopDict[row['wed_afternoon']][self.location_index]
+            val_thumornpres = self.excelWorkshopDict[row['thurs_morning']][self.presenter_index]
+            val_thumornroom = self.excelWorkshopDict[row['thurs_morning']][self.location_index]
+            val_thuaftrpres = self.excelWorkshopDict[row['thurs_afternoon']][self.presenter_index]
+            val_thuaftrroom = self.excelWorkshopDict[row['thurs_afternoon']][self.location_index]
+
+
             # Set pdf fields to values from dataframe (references dict for workshop details)
             pdfFilled.update_page_form_field_values(
                 pdfFilled.pages[page],
-                {f"name_{field_index}"      : row['badge_name'],
-                 f"pronoun_{field_index}"   : row['pronouns'],
-                 f"college_{field_index}"   : row['institution'],
-                 f"c2r2_{field_index}"      : self.excelWorkshopDict[row['wed_morning']][self.presenter_index],
-                 f"c3r2_{field_index}"      : self.excelWorkshopDict[row['wed_morning']][self.location_index],
-                 f"c2r3_{field_index}"      : self.excelWorkshopDict[row['wed_afternoon']][self.presenter_index],
-                 f"c3r3_{field_index}"      : self.excelWorkshopDict[row['wed_afternoon']][self.location_index],
-                 f"c2r4_{field_index}"      : self.excelWorkshopDict[row['thurs_morning']][self.presenter_index],
-                 f"c3r4_{field_index}"      : self.excelWorkshopDict[row['thurs_morning']][self.location_index],
-                 f"c2r5_{field_index}"      : self.excelWorkshopDict[row['thurs_afternoon']][self.presenter_index],
-                 f"c3r5_{field_index}"      : self.excelWorkshopDict[row['thurs_afternoon']][self.location_index],
+                {f"name_{field_index}"      : val_name,
+                 f"pronoun_{field_index}"   : val_pronoun,
+                 f"college_{field_index}"   : val_institution,
+                 f"W_AM_Pres_{field_index}"      : val_wedmornpres,
+                 f"W_AM_Room_{field_index}"      : val_wedmornroom,
+                 f"W_PM_Pres_{field_index}"      : val_wedaftrpres,
+                 f"W_PM_Room_{field_index}"      : val_wedaftrroom,
+                 f"T_AM_Pres_{field_index}"      : val_thumornpres,
+                 f"T_AM_Room_{field_index}"      : val_thumornroom,
+                 f"T_PM_Pres_{field_index}"      : val_thuaftrpres,
+                 f"T_PM_Room_{field_index}"      : val_thuaftrroom,
                 }
                 )
             
@@ -178,6 +192,7 @@ class ExcelDataframe():
                 pdfFilled.reset_translation(pdfTemplate)
                 page += 1
                 pdfFilled.append(pdfTemplate)
+
 
         # Save complete pdf to folder with provided template
         # save_path = os.path.dirname(self.pdfTemplatePath)
