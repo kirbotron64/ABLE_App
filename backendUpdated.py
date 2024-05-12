@@ -157,6 +157,7 @@ class ExcelDataframe():
             pdfFilled.update_page_form_field_values(
                 pdfFilled.pages[page],
                 {f"name_{field_index}"      : row['badge_name'],
+                 f"pronoun_{field_index}"   : row['pronoun'],
                  f"college_{field_index}"   : row['institution'],
                  f"c2r2_{field_index}"      : self.excelWorkshopDict[row['wed_morning']][self.presenter_index],
                  f"c3r2_{field_index}"      : self.excelWorkshopDict[row['wed_morning']][self.location_index],
