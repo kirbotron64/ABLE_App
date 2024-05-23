@@ -141,7 +141,7 @@ class ExcelDataframe():
 
         # Set initial variables for looping
         page = 0
-        count_per_page = 4
+        count_per_page = 3
         pdfFilled.append(pdfTemplate)
 
         #Loop through all items in dataframe
@@ -187,7 +187,7 @@ class ExcelDataframe():
                 )
             
             # if all four blocks on pdf filled out, reset field index and add new page
-            if field_index >= 3:
+            if field_index >= count_per_page - 1:
                 self._pdf_suffix_fields(pdfFilled.pages[page], page)
                 pdfFilled.reset_translation(pdfTemplate)
                 page += 1
