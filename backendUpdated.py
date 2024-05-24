@@ -17,7 +17,7 @@ class ExcelDataframe():
         self.pdfTemplatePath = ""
         self.excelData = pandas.DataFrame()
         self.excelWorkshopDict = {}
-        self.presenter_index = 0
+        self.title_index = 0
         self.location_index = 0
 
 
@@ -60,13 +60,13 @@ class ExcelDataframe():
                 errors.append(e)
         
         try:
-            excelWedData = pandas.read_excel(self.dataFilePath, "Wednesday Workshops")
+            excelWedData = pandas.read_excel(self.dataFilePath, "Wednesday")
         except:
             try:
-                excelWedData = pandas.read_excel(self.dataFilePath, "Wednesday workshops")
+                excelWedData = pandas.read_excel(self.dataFilePath, "wednesday")
             except:
                 try:
-                    excelWedData = pandas.read_excel(self.dataFilePath, "wednesday Workshops")
+                    excelWedData = pandas.read_excel(self.dataFilePath, "Wednesday Workshops")
                 except:
                     try:
                         excelWedData = pandas.read_excel(self.dataFilePath, "wednesday workshops")
@@ -74,13 +74,13 @@ class ExcelDataframe():
                         errors.append(e)
         
         try:
-            excelThuData = pandas.read_excel(self.dataFilePath, "Thursday Workshops")
+            excelThuData = pandas.read_excel(self.dataFilePath, "Thursday")
         except:
             try:
-                excelThuData = pandas.read_excel(self.dataFilePath, "Thursday workshops")
+                excelThuData = pandas.read_excel(self.dataFilePath, "thursday")
             except:
                 try:
-                    excelThuData = pandas.read_excel(self.dataFilePath, "thursday Workshops")
+                    excelThuData = pandas.read_excel(self.dataFilePath, "Thursday Workshops")
                 except:
                     try:
                         excelThuData = pandas.read_excel(self.dataFilePath, "thursday workshops")
@@ -101,14 +101,14 @@ class ExcelDataframe():
         #Verify data existence in workshop dataframes
         if not "workshopid" in excelWedData.columns:
             errors.append(ValueError("Column \'workshopID\' not found in the \'Wednesday workshops\' worksheet"))
-        if not "presenter" in excelWedData.columns:
-            errors.append(ValueError("Column \'presenter\' not found in the \'Wednesday workshops\' worksheet"))
+        if not "title" in excelWedData.columns:
+            errors.append(ValueError("Column \'title\' not found in the \'Wednesday workshops\' worksheet"))
         if not "location" in excelWedData.columns:
             errors.append(ValueError("Column \'location\' not found in the \'Wednesday workshops\' worksheet"))
         if not "workshopid" in excelThuData.columns:
             errors.append(ValueError("Column \'workshopID\' not found in the \'Thursday workshops\' worksheet"))
-        if not "presenter" in excelThuData.columns:
-            errors.append(ValueError("Column \'presenter\' not found in the \'Thursday workshops\' worksheet"))
+        if not "title" in excelThuData.columns:
+            errors.append(ValueError("Column \'title\' not found in the \'Thursday workshops\' worksheet"))
         if not "location" in excelThuData.columns:
             errors.append(ValueError("Column \'location\' not found in the \'Thursday workshops\' worksheet"))
 
@@ -118,9 +118,9 @@ class ExcelDataframe():
 
         #Concat workshop dataframes, index columns, and create dictionary
         excelWorkshopData = pandas.concat([excelWedData, excelThuData])
-        excelWorkshopData['presenter'] = excelWorkshopData['presenter'].fillna('None')
+        excelWorkshopData['title'] = excelWorkshopData['title'].fillna('None')
         excelWorkshopData['location'] = excelWorkshopData['location'].fillna('None')
-        self.presenter_index = excelWorkshopData.columns.get_loc("presenter") - 1
+        self.title_index = excelWorkshopData.columns.get_loc("title") - 1
         self.location_index = excelWorkshopData.columns.get_loc("location") - 1
         self.excelWorkshopDict = excelWorkshopData.set_index('workshopid').T.to_dict('list')
 
@@ -159,13 +159,13 @@ class ExcelDataframe():
             val_name = row['badge_name']
             val_pronoun = row['pronouns']
             val_institution = row['institution']
-            val_wedmornpres = self.excelWorkshopDict[row['wed_morning']][self.presenter_index]
+            val_wedmorntitl = self.excelWorkshopDict[row['wed_morning']][self.title_index]
             val_wedmornroom = self.excelWorkshopDict[row['wed_morning']][self.location_index]
-            val_wedaftrpres = self.excelWorkshopDict[row['wed_afternoon']][self.presenter_index]
+            val_wedaftrtitl = self.excelWorkshopDict[row['wed_afternoon']][self.title_index]
             val_wedaftrroom = self.excelWorkshopDict[row['wed_afternoon']][self.location_index]
-            val_thumornpres = self.excelWorkshopDict[row['thurs_morning']][self.presenter_index]
+            val_thumorntitl = self.excelWorkshopDict[row['thurs_morning']][self.title_index]
             val_thumornroom = self.excelWorkshopDict[row['thurs_morning']][self.location_index]
-            val_thuaftrpres = self.excelWorkshopDict[row['thurs_afternoon']][self.presenter_index]
+            val_thuaftrtitl = self.excelWorkshopDict[row['thurs_afternoon']][self.title_index]
             val_thuaftrroom = self.excelWorkshopDict[row['thurs_afternoon']][self.location_index]
 
 
@@ -175,13 +175,13 @@ class ExcelDataframe():
                 {f"name_{field_index}"      : val_name,
                  f"pronoun_{field_index}"   : val_pronoun,
                  f"institution_{field_index}"   : val_institution,
-                 f"W_AM_Pres_{field_index}"      : val_wedmornpres,
+                 f"W_AM_Titl_{field_index}"      : val_wedmorntitl,
                  f"W_AM_Room_{field_index}"      : val_wedmornroom,
-                 f"W_PM_Pres_{field_index}"      : val_wedaftrpres,
+                 f"W_PM_Titl_{field_index}"      : val_wedaftrtitl,
                  f"W_PM_Room_{field_index}"      : val_wedaftrroom,
-                 f"T_AM_Pres_{field_index}"      : val_thumornpres,
+                 f"T_AM_Titl_{field_index}"      : val_thumorntitl,
                  f"T_AM_Room_{field_index}"      : val_thumornroom,
-                 f"T_PM_Pres_{field_index}"      : val_thuaftrpres,
+                 f"T_PM_Titl_{field_index}"      : val_thuaftrtitl,
                  f"T_PM_Room_{field_index}"      : val_thuaftrroom,
                 }
                 )
