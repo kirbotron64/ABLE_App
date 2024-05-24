@@ -56,8 +56,14 @@ class ExcelDataframe():
         except:
             try:
                 self.excelData = pandas.read_excel(self.dataFilePath, "registrations")
-            except ValueError as e:
-                errors.append(e)
+            except:
+                try:
+                    self.excelData = pandas.read_excel(self.dataFilePath, "Registration")
+                except:
+                    try:
+                        self.excelData = pandas.read_excel(self.dataFilePath, "registration")
+                    except ValueError as e:
+                        errors.append(e)
         
         try:
             excelWedData = pandas.read_excel(self.dataFilePath, "Wednesday")
